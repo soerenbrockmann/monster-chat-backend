@@ -6,12 +6,8 @@ router.get('/', (req, res, next) => {
   res.send('get list of usres');
 });
 
-router.post('/', (req, res, next) => {
-  res.send('get list of usres');
-});
-
-router.delete('/:userid', (req, res, next) => {
-  res.send('get list of usres');
+router.get('/friends', (req, res, next) => {
+  res.send('get list of frinds');
 });
 
 export default router;
