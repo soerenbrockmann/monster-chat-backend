@@ -6,7 +6,7 @@ import logger from 'morgan';
 
 import indexRouter from './routes/index';
 import usersRouter from './routes/users';
-import basicAuth from './auth/basic';
+import cookieAuth from './authStrategy/cookie';
 
 const app = express();
 
@@ -17,10 +17,10 @@ app.set('view engine', 'jade');
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser());
+app.use(cookieParser('secret'));
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use(basicAuth);
+app.use(cookieAuth);
 
 app.use('/', indexRouter);
 
