@@ -9,6 +9,7 @@ import FileStore from 'session-file-store';
 import indexRouter from './routes/index';
 import usersRouter from './routes/users';
 import sessionAuth from './authStrategy/session';
+import mongoose from 'mongoose';
 
 const app = express();
 
@@ -33,8 +34,9 @@ app.use(
 
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use(sessionAuth);
+// app.use(sessionAuth);
 
+mongoose.connect('mongodb://localhost/monster_chat', { useNewUrlParser: true, useUnifiedTopology: true });
 app.use('/', indexRouter);
 
 app.use('/users', usersRouter);
