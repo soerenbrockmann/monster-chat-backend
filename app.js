@@ -47,7 +47,9 @@ mongoose.connect('mongodb://localhost/monster_chat', { useNewUrlParser: true, us
 app.use('/', indexRouter);
 
 app.use('/users', usersLocalRouter);
-app.use(localAuth);
+
+// app.use(localAuth);
+
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
   next(createError(404));
