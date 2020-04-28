@@ -29,7 +29,7 @@ router.post('/signup', async (req, res, next) => {
   } catch (err) {
     res.statusCode = 500;
     res.setHeader('Content-Tyoe', 'application/json');
-    res.json({ err });
+    res.json(err);
   }
 });
 
