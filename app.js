@@ -4,13 +4,22 @@ import logger from 'morgan';
 import passport from 'passport';
 import mongoose from 'mongoose';
 import cors from 'cors';
-
+import cookieParser from 'cookie-parser';
 import indexRouter from './routes/index';
 import usersLocalRouter from './routes/usersLocal';
 
 const app = express();
 
-app.use(cors());
+app.use(cookieParser());
+
+const corsConfig = {
+  origin: true,
+  credentials: true,
+};
+
+app.use(cors(corsConfig));
+app.options('*', cors(corsConfig));
+
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));

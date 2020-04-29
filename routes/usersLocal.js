@@ -17,6 +17,12 @@ router.get('/', verifyUser, async (req, res, next) => {
   }
 });
 
+router.get('/isAuthenticated', verifyUser, async (req, res, next) => {
+  res.statusCode = 200;
+  res.setHeader('Content-Tyoe', 'application/json');
+  res.json({ sucess: true, status: 'Authenticated!' });
+});
+
 router.get('/chat', async (req, res, next) => {});
 
 router.post('/signup', async (req, res, next) => {
@@ -36,8 +42,9 @@ router.post('/signup', async (req, res, next) => {
 router.post('/login', passport.authenticate('local'), async (req, res, next) => {
   const token = getToken({ _id: req.user._id });
   res.statusCode = 200;
-  res.setHeader('Content-Tyoe', 'application/json');
-  res.json({ sucess: true, token, status: 'You are successfully logged in!!' });
+  res.setHeader('Content-Type', 'application/json');
+  res.cookie('jwt', token, { httpOnly: true, secure: false });
+  res.json({ sucess: true, status: 'You are successfully logged in!!' });
 });
 
 router.get('/logout', (req, res, next) => {
