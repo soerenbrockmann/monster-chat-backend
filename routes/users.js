@@ -1,6 +1,6 @@
 import express from 'express';
 import passport from 'passport';
-import User from '../models/userLocal';
+import User from '../models/user';
 import { verifyUser, getToken, verifyIfUserIsAuthenticated } from '../authStrategy/authenticate';
 
 const router = express.Router();
