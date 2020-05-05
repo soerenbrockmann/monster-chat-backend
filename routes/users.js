@@ -1,7 +1,7 @@
 import express from 'express';
 import passport from 'passport';
 import User from '../models/user';
-import { verifyUser, getToken } from '../authStrategy/authenticate';
+import { verifyUser, getToken, verifyIfUserIsAuthenticated } from '../authStrategy/authenticate';
 
 const router = express.Router();
 
@@ -18,10 +18,15 @@ router.get('/', verifyUser, async (req, res, next) => {
   }
 });
 
-router.get('/isAuthenticated', verifyUser, async (req, res, next) => {
+router.get('/isAuthenticated', async (req, res, next) => {
   res.statusCode = 200;
   res.setHeader('Content-Tyoe', 'application/json');
-  res.json({ sucess: true, status: 'Authenticated!' });
+  try {
+    await verifyIfUserIsAuthenticated(req.cookies['jwt']);
+    res.json({ sucess: true, status: 'Authenticated!' });
+  } catch (error) {
+    res.json({ sucess: false, status: 'Not Authenticated!' });
+  }
 });
 
 router.get('/chat', async (req, res, next) => {});

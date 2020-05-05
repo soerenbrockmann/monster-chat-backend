@@ -37,4 +37,5 @@ export default strategy;
 
 export const verifyUser = passport.authenticate('jwt', { session: false });
 
+export const verifyIfUserIsAuthenticated = (token) => jwt.verify(token, opts.secretOrKey);
 export const getToken = (user) => jwt.sign(user, config.secretKey, { expiresIn: 3600 });
