@@ -1,6 +1,6 @@
 import express from 'express';
 import passport from 'passport';
-import User from '../models/userLocal';
+import User from '../models/user';
 import { verifyUser, getToken } from '../authStrategy/authenticate';
 
 const router = express.Router();
@@ -28,7 +28,6 @@ router.get('/chat', async (req, res, next) => {});
 router.post('/signup', async (req, res, next) => {
   try {
     await User.register(new User({ username: req.body.username }), req.body.password);
-    passport.authenticate('local');
     res.statusCode = 200;
     res.setHeader('Content-Tyoe', 'application/json');
     res.json({ sucess: true, status: 'Registration Successful!' });
@@ -40,10 +39,11 @@ router.post('/signup', async (req, res, next) => {
 });
 
 router.post('/login', passport.authenticate('local'), async (req, res, next) => {
-  const token = getToken({ _id: req.user._id });
+  const jwtToken = getToken({ _id: req.user._id });
+  res.cookie('jwt', jwtToken, { httpOnly: true, secure: false });
   res.statusCode = 200;
   res.setHeader('Content-Type', 'application/json');
-  res.cookie('jwt', token, { httpOnly: true, secure: false });
+
   res.json({ sucess: true, status: 'You are successfully logged in!!' });
 });
 
