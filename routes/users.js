@@ -1,5 +1,6 @@
 import express from 'express';
 import passport from 'passport';
+<<<<<<< HEAD:routes/usersLocal.js
 import User from '../models/userLocal';
 import {
   verifyUser,
@@ -7,12 +8,17 @@ import {
   getJwtPayloadFromToken,
   verifyIfUserIsAuthenticated,
 } from '../authStrategy/authenticate';
+=======
+import User from '../models/user';
+import { verifyUser, getToken } from '../authStrategy/authenticate';
+>>>>>>> master:routes/users.js
 
 const router = express.Router();
 
 router.get('/', verifyUser, async (req, res, next) => {
   try {
     const users = await User.find({});
+    res.statusCode = 200;
     res.setHeader('Content-Tyoe', 'application/json');
     res.json({ users });
   } catch (err) {
@@ -38,7 +44,6 @@ router.get('/chat', async (req, res, next) => {});
 router.post('/signup', async (req, res, next) => {
   try {
     await User.register(new User({ username: req.body.username }), req.body.password);
-    passport.authenticate('local');
     res.statusCode = 200;
     res.setHeader('Content-Tyoe', 'application/json');
     res.json({ sucess: true, status: 'Registration Successful!' });
@@ -50,15 +55,20 @@ router.post('/signup', async (req, res, next) => {
 });
 
 router.post('/login', passport.authenticate('local'), async (req, res, next) => {
-  const token = getToken({ _id: req.user._id });
+  const jwtToken = getToken({ _id: req.user._id });
+  res.cookie('jwt', jwtToken, { httpOnly: true, secure: false });
   res.statusCode = 200;
   res.setHeader('Content-Type', 'application/json');
-  res.cookie('jwt', token, { httpOnly: true, secure: false });
+
   res.json({ sucess: true, status: 'You are successfully logged in!!' });
 });
 
 router.get('/logout', (req, res, next) => {
+<<<<<<< HEAD:routes/usersLocal.js
   res.logout();
+=======
+  res.clearCookie('jwt');
+>>>>>>> master:routes/users.js
   res.statusCode = 200;
   res.setHeader('Content-Tyoe', 'application/json');
   res.json({ sucess: true, status: 'You are successfully logged out!' });

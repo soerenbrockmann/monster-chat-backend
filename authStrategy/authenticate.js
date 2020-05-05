@@ -1,20 +1,18 @@
 import passport from 'passport';
 import LocalStrategy from 'passport-local';
-import User from '../models/userLocal';
 import passportJWT from 'passport-jwt';
-
 import jwt from 'jsonwebtoken';
 
+import User from '../models/user';
 import config from '../config';
 
 const JwtStrategy = passportJWT.Strategy;
-const ExtractJwt = passportJWT.ExtractJwt;
 
 passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
 
 const opts = {};
-opts.jwtFromRequest = (req) => req.cookies.jwt; //ExtractJwt.fromAuthHeaderAsBearerToken();
+opts.jwtFromRequest = (req) => req.cookies.jwt;
 opts.secretOrKey = config.secretKey;
 
 const validateUser = async (jwt_payload, done) => {
@@ -31,7 +29,11 @@ const validateUser = async (jwt_payload, done) => {
 
 passport.use(new JwtStrategy(opts, validateUser));
 
-export default passport.use(new LocalStrategy(User.authenticate()));
+const localStrategy = new LocalStrategy(User.authenticate());
+
+const strategy = passport.use(localStrategy);
+
+export default strategy;
 
 export const verifyUser = passport.authenticate('jwt', { session: false });
 

@@ -6,7 +6,7 @@ import mongoose from 'mongoose';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import indexRouter from './routes/index';
-import usersLocalRouter from './routes/usersLocal';
+import usersLocalRouter from './routes/users';
 
 const app = express();
 
@@ -28,6 +28,7 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 mongoose.connect('mongodb://localhost/monster_chat', { useNewUrlParser: true, useUnifiedTopology: true });
+
 app.use('/api', indexRouter);
 
 app.use('/api/users', usersLocalRouter);

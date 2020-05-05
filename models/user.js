@@ -1,4 +1,9 @@
+<<<<<<< HEAD:models/userLocal.js
 import mongoose, { SchemaType, SchemaTypes } from 'mongoose';
+=======
+import mongoose from 'mongoose';
+
+>>>>>>> master:models/user.js
 import passportLocalMongoose from 'passport-local-mongoose';
 
 const Schema = mongoose.Schema;
