@@ -1,17 +1,7 @@
 import express from 'express';
 import passport from 'passport';
-<<<<<<< HEAD:routes/usersLocal.js
 import User from '../models/userLocal';
-import {
-  verifyUser,
-  getToken,
-  getJwtPayloadFromToken,
-  verifyIfUserIsAuthenticated,
-} from '../authStrategy/authenticate';
-=======
-import User from '../models/user';
-import { verifyUser, getToken } from '../authStrategy/authenticate';
->>>>>>> master:routes/users.js
+import { verifyUser, getToken, verifyIfUserIsAuthenticated } from '../authStrategy/authenticate';
 
 const router = express.Router();
 
@@ -64,11 +54,7 @@ router.post('/login', passport.authenticate('local'), async (req, res, next) => 
 });
 
 router.get('/logout', (req, res, next) => {
-<<<<<<< HEAD:routes/usersLocal.js
-  res.logout();
-=======
   res.clearCookie('jwt');
->>>>>>> master:routes/users.js
   res.statusCode = 200;
   res.setHeader('Content-Tyoe', 'application/json');
   res.json({ sucess: true, status: 'You are successfully logged out!' });
