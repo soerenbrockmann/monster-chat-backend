@@ -17,6 +17,21 @@ router.get('/', verifyUser, async (req, res, next) => {
   }
 });
 
+router.put('/profile', verifyUser, async (req, res, next) => {
+  try {
+    const payload = await getJwtPayloadFromToken(req.cookies['jwt']);
+    console.log(payload);
+    await User.findByIdAndUpdate({ _id: payload._id }, { name: req.body.name, avatarURL: req.body.avatarURL });
+    res.statusCode = 200;
+    res.setHeader('Content-Tyoe', 'application/json');
+    res.json({ sucess: true, status: 'Registration Successful!' });
+  } catch (err) {
+    res.statusCode = 500;
+    res.setHeader('Content-Tyoe', 'application/json');
+    res.json(err);
+  }
+});
+
 router.get('/isAuthenticated', verifyUser, async (req, res, next) => {
   res.statusCode = 200;
   res.setHeader('Content-Tyoe', 'application/json');

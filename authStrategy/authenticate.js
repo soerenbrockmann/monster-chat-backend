@@ -34,5 +34,5 @@ passport.use(new JwtStrategy(opts, validateUser));
 export default passport.use(new LocalStrategy(User.authenticate()));
 
 export const verifyUser = passport.authenticate('jwt', { session: false });
-
+export const getJwtPayloadFromToken = (token) => jwt.verify(token, opts.secretOrKey);
 export const getToken = (user) => jwt.sign(user, config.secretKey, { expiresIn: 3600 });
