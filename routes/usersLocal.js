@@ -1,7 +1,7 @@
 import express from 'express';
 import passport from 'passport';
 import User from '../models/userLocal';
-import { verifyUser, getToken } from '../authStrategy/authenticate';
+import { verifyUser, getToken, getJwtPayloadFromToken } from '../authStrategy/authenticate';
 
 const router = express.Router();
 
@@ -20,7 +20,6 @@ router.get('/', verifyUser, async (req, res, next) => {
 router.put('/profile', verifyUser, async (req, res, next) => {
   try {
     const payload = await getJwtPayloadFromToken(req.cookies['jwt']);
-    console.log(payload);
     await User.findByIdAndUpdate({ _id: payload._id }, { name: req.body.name, avatarURL: req.body.avatarURL });
     res.statusCode = 200;
     res.setHeader('Content-Tyoe', 'application/json');
@@ -29,6 +28,20 @@ router.put('/profile', verifyUser, async (req, res, next) => {
     res.statusCode = 500;
     res.setHeader('Content-Tyoe', 'application/json');
     res.json(err);
+  }
+});
+
+router.get('/profile', verifyUser, async (req, res, next) => {
+  try {
+    const payload = await getJwtPayloadFromToken(req.cookies['jwt']);
+    const user = await User.findById({ _id: payload._id });
+    res.statusCode = 200;
+    res.setHeader('Content-Tyoe', 'application/json');
+    res.json({ sucess: true, user, status: 'Successful!' });
+  } catch (err) {
+    res.statusCode = 404;
+    res.setHeader('Content-Tyoe', 'application/json');
+    res.json({ sucess: false, status: 'User was not found' });
   }
 });
 
@@ -42,7 +55,7 @@ router.get('/chat', async (req, res, next) => {});
 
 router.post('/signup', async (req, res, next) => {
   try {
-    await User.register(new User({ username: req.body.username }), req.body.password);
+    await User.register(new User({ username: req.body.username, name: '', avatarURL: '' }), req.body.password);
     passport.authenticate('local');
     res.statusCode = 200;
     res.setHeader('Content-Tyoe', 'application/json');
