@@ -8,6 +8,7 @@ const router = express.Router();
 router.get('/', verifyUser, async (req, res, next) => {
   try {
     const users = await User.find({});
+    res.statusCode = 200;
     res.setHeader('Content-Tyoe', 'application/json');
     res.json({ users });
   } catch (err) {
@@ -48,7 +49,7 @@ router.post('/login', passport.authenticate('local'), async (req, res, next) => 
 });
 
 router.get('/logout', (req, res, next) => {
-  req.logout();
+  res.clearCookie('jwt');
   res.statusCode = 200;
   res.setHeader('Content-Tyoe', 'application/json');
   res.json({ sucess: true, status: 'You are successfully logged out!' });

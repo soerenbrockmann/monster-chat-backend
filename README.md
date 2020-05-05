@@ -70,7 +70,20 @@ export default {
     - Respond with 200
 
 16. Create /login route
+
     - Add middleware to authenticate with local passport strategy
     - On sucess, generate jwt token
     - Store jwt token inside Cookie with httpOnly: true
     - Respond with 200
+
+17. Create /logout route
+
+    - Delete jwt Cookie
+    - Respond with 200
+
+18. Create route / to get all available users
+
+    - Get all users from DB
+    - Return them with 200
+
+19. ## Create route /isAuthenticated to check whether user is authenticated
