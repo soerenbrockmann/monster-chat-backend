@@ -35,4 +35,23 @@ export default passport.use(new LocalStrategy(User.authenticate()));
 
 export const verifyUser = passport.authenticate('jwt', { session: false });
 
+export const verifyIfUserIsAuthenticated = (token) => jwt.verify(token, opts.secretOrKey);
 export const getToken = (user) => jwt.sign(user, config.secretKey, { expiresIn: 3600 });
+
+// app.get('/login', function (req, res, next) {
+//   passport.authenticate('local', function (err, user, info) {
+//     if (err) {
+//       return next(err);
+//     }
+//     if (!user) {
+//       return res.redirect('/login');
+//     }
+
+//     req.logIn(user, function (err) {
+//       if (err) {
+//         return next(err);
+//       }
+//       return res.redirect('/users/' + user.username);
+//     });
+//   })(req, res, next);
+// });

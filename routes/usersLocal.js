@@ -1,7 +1,12 @@
 import express from 'express';
 import passport from 'passport';
 import User from '../models/userLocal';
-import { verifyUser, getToken } from '../authStrategy/authenticate';
+import {
+  verifyUser,
+  getToken,
+  getJwtPayloadFromToken,
+  verifyIfUserIsAuthenticated,
+} from '../authStrategy/authenticate';
 
 const router = express.Router();
 
@@ -17,10 +22,15 @@ router.get('/', verifyUser, async (req, res, next) => {
   }
 });
 
-router.get('/isAuthenticated', verifyUser, async (req, res, next) => {
+router.get('/isAuthenticated', async (req, res, next) => {
   res.statusCode = 200;
   res.setHeader('Content-Tyoe', 'application/json');
-  res.json({ sucess: true, status: 'Authenticated!' });
+  try {
+    await verifyIfUserIsAuthenticated(req.cookies['jwt']);
+    res.json({ sucess: true, status: 'Authenticated!' });
+  } catch (error) {
+    res.json({ sucess: false, status: 'Not Authenticated!' });
+  }
 });
 
 router.get('/chat', async (req, res, next) => {});
@@ -48,7 +58,7 @@ router.post('/login', passport.authenticate('local'), async (req, res, next) => 
 });
 
 router.get('/logout', (req, res, next) => {
-  req.logout();
+  res.logout();
   res.statusCode = 200;
   res.setHeader('Content-Tyoe', 'application/json');
   res.json({ sucess: true, status: 'You are successfully logged out!' });
