@@ -1,11 +1,11 @@
 import express from 'express';
-import passport from 'passport';
+import { signUp, login, verifyIfUserIsAuthenticated } from '../services/authenticate';
+import { isAuthenticated } from '../middlewares/isAuthenticated';
 import User from '../models/user';
-import { verifyUser, getToken, verifyIfUserIsAuthenticated } from '../authStrategy/authenticate';
 
 const router = express.Router();
 
-router.get('/', verifyUser, async (req, res, next) => {
+router.get('/', isAuthenticated, async (req, res, next) => {
   try {
     const users = await User.find({});
     res.statusCode = 200;
@@ -33,7 +33,7 @@ router.get('/chat', async (req, res, next) => {});
 
 router.post('/signup', async (req, res, next) => {
   try {
-    await User.register(new User({ username: req.body.username }), req.body.password);
+    await signUp(req.body.email, req.body.password);
     res.statusCode = 200;
     res.setHeader('Content-Tyoe', 'application/json');
     res.json({ sucess: true, status: 'Registration Successful!' });
@@ -44,13 +44,19 @@ router.post('/signup', async (req, res, next) => {
   }
 });
 
-router.post('/login', passport.authenticate('local'), async (req, res, next) => {
-  const jwtToken = getToken({ _id: req.user._id });
-  res.cookie('jwt', jwtToken, { httpOnly: true, secure: false });
-  res.statusCode = 200;
-  res.setHeader('Content-Type', 'application/json');
-
-  res.json({ sucess: true, status: 'You are successfully logged in!!' });
+router.post('/login', async (req, res, next) => {
+  try {
+    const jwtToken = await login(req.body.email, req.body.password);
+    res.cookie('jwt', jwtToken, { httpOnly: true, secure: false });
+    res.statusCode = 200;
+    res.setHeader('Content-Tyoe', 'application/json');
+    res.json({ sucess: true, status: 'You are successfully logged in!!' });
+  } catch (err) {
+    console.log(err);
+    res.statusCode = 500;
+    res.setHeader('Content-Tyoe', 'application/json');
+    res.json(err);
+  }
 });
 
 router.get('/logout', (req, res, next) => {
