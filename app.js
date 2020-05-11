@@ -5,6 +5,7 @@ import passport from 'passport';
 import mongoose from 'mongoose';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
+import path from 'path';
 import indexRouter from './routes/index';
 import usersLocalRouter from './routes/usersLocal';
 
@@ -32,6 +33,8 @@ app.use('/api', indexRouter);
 
 app.use('/api/users', usersLocalRouter);
 
+app.use('/images', express.static(path.join(__dirname, 'images')));
+
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
   next(createError(404));
@@ -45,7 +48,8 @@ app.use(function (err, req, res, next) {
 
   // render the error page
   res.status(err.status || 500);
-  res.render('error');
+  // res.render('error');
+  res.json({ err });
 });
 
 export default app;
