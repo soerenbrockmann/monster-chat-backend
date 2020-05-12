@@ -106,7 +106,10 @@ export default {
     - Respond with 200
 
 21. Create route GET /profile to get profile data
+
     - Get user id from jwt cookie
     - Get profile data with that id
     - Generate the url to the image
     - Return the name and avatar and status code 200
+
+22. Add images/ to .gitignore
