@@ -4,7 +4,7 @@ import passport from 'passport';
 import multer from 'multer';
 import User from '../models/userLocal';
 import config from '../config';
-import { verifyUser, getToken, getJwtPayloadFromToken } from '../authStrategy/authenticate';
+import { verifyUser, getToken, verifyJWT } from '../authStrategy/authenticate';
 
 const removeImage = (path) => {
   return new Promise((resolve, reject) => {
@@ -31,6 +31,7 @@ const router = express.Router();
 router.get('/', verifyUser, async (req, res, next) => {
   try {
     const users = await User.find({});
+    res.statusCode = 200;
     res.setHeader('Content-Tyoe', 'application/json');
     res.json({ users });
   } catch (err) {
@@ -67,7 +68,7 @@ router.put('/profile', verifyUser, upload.single('avatar'), async (req, res, nex
 
 router.get('/profile', verifyUser, async (req, res, next) => {
   try {
-    const payload = await getJwtPayloadFromToken(req.cookies['jwt']);
+    const payload = await verifyJWT(req.cookies['jwt']);
     const { name, avatarURL } = await User.findById({ _id: payload._id });
 
     const avatar = `${config.host}:${config.port}/${config.imageDirectory}/${avatarURL}`;
@@ -82,10 +83,15 @@ router.get('/profile', verifyUser, async (req, res, next) => {
   }
 });
 
-router.get('/isAuthenticated', verifyUser, async (req, res, next) => {
+router.get('/isAuthenticated', async (req, res, next) => {
   res.statusCode = 200;
   res.setHeader('Content-Tyoe', 'application/json');
-  res.json({ sucess: true, status: 'Authenticated!' });
+  try {
+    await verifyJWT(req.cookies['jwt']);
+    res.json({ sucess: true, status: 'Authenticated!' });
+  } catch (error) {
+    res.json({ sucess: false, status: 'Not Authenticated!' });
+  }
 });
 
 router.get('/chat', async (req, res, next) => {});
@@ -105,15 +111,16 @@ router.post('/signup', async (req, res, next) => {
 });
 
 router.post('/login', passport.authenticate('local'), async (req, res, next) => {
-  const token = getToken({ _id: req.user._id });
+  const jwtToken = getToken({ _id: req.user._id });
+  res.cookie('jwt', jwtToken, { httpOnly: true, secure: false });
   res.statusCode = 200;
   res.setHeader('Content-Type', 'application/json');
-  res.cookie('jwt', token, { httpOnly: true, secure: false });
+
   res.json({ sucess: true, status: 'You are successfully logged in!!' });
 });
 
 router.get('/logout', (req, res, next) => {
-  req.logout();
+  res.clearCookie('jwt');
   res.statusCode = 200;
   res.setHeader('Content-Tyoe', 'application/json');
   res.json({ sucess: true, status: 'You are successfully logged out!' });
