@@ -42,9 +42,11 @@ router.get('/', verifyUser, async (req, res, next) => {
 });
 
 router.put('/profile', verifyUser, upload.single('avatar'), async (req, res, next) => {
+  const isNewFile = req.file && req.file.filename;
+
   try {
-    const payload = await getJwtPayloadFromToken(req.cookies['jwt']);
-    if (req.body.isNewFile) {
+    const payload = await verifyJWT(req.cookies['jwt']);
+    if (isNewFile) {
       try {
         const { avatarURL } = await User.findById({ _id: payload._id });
         await removeImage(`${__dirname}/../${config.imageDirectory}/${avatarURL}`);
@@ -53,7 +55,12 @@ router.put('/profile', verifyUser, upload.single('avatar'), async (req, res, nex
       }
     }
 
-    await User.findByIdAndUpdate({ _id: payload._id }, { name: req.body.name, avatarURL: req.file.filename });
+    const userPayload = { name: req.body.name };
+    if (isNewFile) {
+      userPayload.avatarURL = req.file.filename;
+    }
+
+    await User.findByIdAndUpdate({ _id: payload._id }, userPayload);
     res.statusCode = 200;
     res.setHeader('Content-Tyoe', 'application/json');
     res.json({ sucess: true, status: 'Profile successfully updated!' });
