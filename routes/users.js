@@ -2,7 +2,7 @@ import express from 'express';
 import fs from 'fs';
 import passport from 'passport';
 import multer from 'multer';
-import User from '../models/userLocal';
+import User from '../models/user';
 import config from '../config';
 import { verifyUser, getToken, verifyJWT } from '../authStrategy/authenticate';
 
