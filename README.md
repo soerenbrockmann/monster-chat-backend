@@ -86,4 +86,30 @@ export default {
     - Get all users from DB
     - Return them with 200
 
-19. ## Create route /isAuthenticated to check whether user is authenticated
+19. Create route /isAuthenticated to check whether user is authenticated
+
+    - Return status code 200 for any response
+    - Do the verification manually (no middleware) using library 'jsonwebtoken'
+    - On sucess, respond with paylod { success: true }
+    - On error, respond with paylod { success: false }
+
+20. Create route PUT /profle to update user model data
+
+    - Extend User model with name and avatarURL
+    - Initialize those fields on signup route
+    - Add library 'multer' and add it as middleware to upload a single file. It also extends the req object with a filename (req.file.filename)
+      - https://github.com/expressjs/multer
+      - Create diskStorage instance to determine the destination and filename
+    - Add a boolean flag whether a file has been submitted so that we can check wheather we should delete an existing file and update the path in the DB
+    - Implement existing file deletion in case of updating profile picture
+    - Add filename to the new payload only when new file exists.
+    - Respond with 200
+
+21. Create route GET /profile to get profile data
+
+    - Get user id from jwt cookie
+    - Get profile data with that id
+    - Generate the url to the image
+    - Return the name and avatar and status code 200
+
+22. Add images/ to .gitignore

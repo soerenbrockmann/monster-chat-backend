@@ -1,7 +1,30 @@
 import express from 'express';
+import fs from 'fs';
 import passport from 'passport';
+import multer from 'multer';
 import User from '../models/user';
-import { verifyUser, getToken, verifyIfUserIsAuthenticated } from '../authStrategy/authenticate';
+import config from '../config';
+import { verifyUser, getToken, verifyJWT } from '../authStrategy/authenticate';
+
+const removeImage = (path) => {
+  return new Promise((resolve, reject) => {
+    fs.unlink(path, (err, data) => {
+      if (err) reject(err);
+      else resolve(data);
+    });
+  });
+};
+const storage = multer.diskStorage({
+  destination: async (req, file, cb) => {
+    cb(null, 'images/');
+  },
+
+  filename: function (req, file, cb) {
+    cb(null, file.fieldname + '-' + Date.now() + file.originalname);
+  },
+});
+
+const upload = multer({ storage });
 
 const router = express.Router();
 
@@ -18,11 +41,60 @@ router.get('/', verifyUser, async (req, res, next) => {
   }
 });
 
+router.put('/profile', verifyUser, upload.single('avatar'), async (req, res, next) => {
+  const isNewFile = req.file && req.file.filename;
+
+  try {
+    const payload = await verifyJWT(req.cookies['jwt']);
+    if (isNewFile) {
+      try {
+        const { avatarURL } = await User.findById({ _id: payload._id });
+        await removeImage(`${__dirname}/../${config.imageDirectory}/${avatarURL}`);
+      } catch (error) {
+        console.log(error);
+      }
+    }
+
+    const userPayload = { name: req.body.name };
+    if (isNewFile) {
+      userPayload.avatarURL = req.file.filename;
+    }
+
+    await User.findByIdAndUpdate({ _id: payload._id }, userPayload);
+    res.statusCode = 200;
+    res.setHeader('Content-Tyoe', 'application/json');
+    res.json({ sucess: true, status: 'Profile successfully updated!' });
+  } catch (err) {
+    console.log(err);
+
+    res.statusCode = 500;
+    res.setHeader('Content-Tyoe', 'application/json');
+    res.json(err);
+  }
+});
+
+router.get('/profile', verifyUser, async (req, res, next) => {
+  try {
+    const payload = await verifyJWT(req.cookies['jwt']);
+    const { name, avatarURL } = await User.findById({ _id: payload._id });
+
+    const avatar = `${config.host}:${config.port}/${config.imageDirectory}/${avatarURL}`;
+
+    res.statusCode = 200;
+    res.setHeader('Content-Tyoe', 'application/json');
+    res.json({ sucess: true, name, avatar, status: 'Successful!' });
+  } catch (err) {
+    res.statusCode = 404;
+    res.setHeader('Content-Tyoe', 'application/json');
+    res.json({ sucess: false, status: 'User was not found' });
+  }
+});
+
 router.get('/isAuthenticated', async (req, res, next) => {
   res.statusCode = 200;
   res.setHeader('Content-Tyoe', 'application/json');
   try {
-    await verifyIfUserIsAuthenticated(req.cookies['jwt']);
+    await verifyJWT(req.cookies['jwt']);
     res.json({ sucess: true, status: 'Authenticated!' });
   } catch (error) {
     res.json({ sucess: false, status: 'Not Authenticated!' });
@@ -33,7 +105,8 @@ router.get('/chat', async (req, res, next) => {});
 
 router.post('/signup', async (req, res, next) => {
   try {
-    await User.register(new User({ username: req.body.username }), req.body.password);
+    await User.register(new User({ username: req.body.username, name: '', avatarURL: '' }), req.body.password);
+    passport.authenticate('local');
     res.statusCode = 200;
     res.setHeader('Content-Tyoe', 'application/json');
     res.json({ sucess: true, status: 'Registration Successful!' });
