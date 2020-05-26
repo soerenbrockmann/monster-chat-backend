@@ -7,6 +7,8 @@
 import app from '../app';
 import debug from 'debug';
 import http from 'http';
+import socketIO from 'socket.io';
+import { initIO } from '../services/io';
 
 debug('monster-chat-backend:server');
 /**
@@ -21,7 +23,8 @@ app.set('port', port);
  */
 
 const server = http.createServer(app);
-
+const io = socketIO(server);
+initIO(io);
 /**
  * Listen on provided port, on all network interfaces.
  */

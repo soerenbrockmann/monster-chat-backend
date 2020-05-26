@@ -43,8 +43,8 @@ export const resolveIsAuthenticatedController = async (req, res) => {
   res.statusCode = 200;
   res.setHeader('Content-Tyoe', 'application/json');
   try {
-    await checkAuthentication(req.cookies);
-    res.json({ sucess: true, status: 'Authenticated!' });
+    const user = await checkAuthentication(req.cookies);
+    res.json({ sucess: true, userId: user._id, status: 'Authenticated!' });
   } catch (error) {
     res.json({ sucess: false, status: 'Not Authenticated!' });
   }
@@ -69,7 +69,7 @@ export const resolveLoginController = async (req, res) => {
     res.cookie('jwt', jwtToken, { httpOnly: true, secure: false });
     res.statusCode = 200;
     res.setHeader('Content-Type', 'application/json');
-    res.json({ sucess: true, status: 'You are successfully logged in!!' });
+    res.json({ sucess: true, userId: req.user._id, status: 'You are successfully logged in!!' });
   } catch (error) {
     res.statusCode = 500;
     res.setHeader('Content-Tyoe', 'application/json');

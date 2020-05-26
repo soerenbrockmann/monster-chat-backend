@@ -4,7 +4,7 @@ import { getToken, verifyJWT } from './authenticate';
 import config from '../config';
 
 export const getUsers = async () => await User.find({});
-
+export const getUserById = async (id) => await User.find({ _id: id });
 const unlinkImage = (path) => {
   return new Promise((resolve, reject) => {
     fs.unlink(path, (err, data) => {
@@ -24,14 +24,14 @@ const deleteImage = async (id) => {
 };
 
 export const updateProfile = async ({ body, file, cookies }) => {
-  const isNewFile = file && file.filename;
   try {
     const payload = await verifyJWT(cookies['jwt']);
-    if (isNewFile) {
-      await deleteImage(payload._id);
-    }
     const userPayload = { name: body.name };
-    userPayload.avatarURL = file.filename;
+
+    if (file) {
+      await deleteImage(payload._id);
+      userPayload.avatarURL = file.filename || '';
+    }
 
     await User.findByIdAndUpdate({ _id: payload._id }, userPayload);
   } catch (error) {
@@ -51,16 +51,21 @@ export const getProfile = async (cookies) => {
 };
 
 export const signUp = async (body) => {
+  console.log(body);
+
   try {
     await User.register(new User({ username: body.username, name: '', avatarURL: '' }), body.password);
   } catch (error) {
+    console.log(error);
+
     throw new Error(error);
   }
 };
 
 export const checkAuthentication = async (cookies) => {
   try {
-    await verifyJWT(cookies['jwt']);
+    const user = await verifyJWT(cookies['jwt']);
+    return user;
   } catch (error) {
     throw new Error(error);
   }
